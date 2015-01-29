@@ -1,0 +1,61 @@
+
+<div id="content">
+<div id="sub-brand"><!--TPL_USERBRAND--><a href="https://www.cl.cam.ac.uk/research/dtg/www/" title="Digital Technology Group - Home"></a></div>
+<div id="content-primary">
+
+<span style="display: inline-block; text-align: center; height: 200px; width: 300px">
+<span id=placeholder style="display: inline-block; height: 180px; width: 300px"></span>
+<br>Temperature (&deg;C)</span>
+
+<span style="display: inline-block; text-align: center; margin: 0 0 1.75em 0;">
+<img alt="dewpt" src="./today_files/2015_01_29-dewpt.png">
+<br>
+Dew Point (&deg;C)</span>
+
+<span style="display: inline-block; text-align: center; margin: 0 0 1.75em 0;">
+<img alt="pressure" src="./today_files/2015_01_29-pressure.png">
+<br>
+Pressure QNH (mbar)</span>
+
+<span style="display: inline-block; text-align: center; margin: 0 0 1.75em 0;">
+<img alt="hum" src="./today_files/2015_01_29-hum.png">
+<br>
+Humidity (%)</span>
+
+<span style="display: inline-block; text-align: center; margin: 0 0 1.75em 0;">
+<img alt="rainfall" src="./today_files/2015_01_29-rainfall.png">
+<br>
+Rainfall (mm/hr)</span>
+
+<span style="display: inline-block; text-align: center; margin: 0 0 1.75em 0;">
+<img alt="sunhours" src="./today_files/2015_01_29-sunhours.png">
+<br>
+Sunshine (%)</span>
+
+<span style="display: inline-block; text-align: center; margin: 0 0 1.75em 0;">
+<img alt="windspd" src="./today_files/2015_01_29-windspd.png">
+<br>
+Wind Speed (<span style="color:red">max</span> &amp; <span style="color:orange">
+mean</span> knots)</span>
+
+<span style="display: inline-block; text-align: center; margin: 0 0 1.75em 0;">
+<img alt="winddir" src="./today_files/2015_01_29-winddir.png">
+<br>
+Wind Direction (°)</span>
+</p>
+
+		</div> <!-- content-primary -->
+
+<script language="javascript" type="text/javascript" src="flot/jquery.min.js"></script>
+<script language="javascript" type="text/javascript" src="flot/jquery.flot.min.js"></script>
+<script type="text/javascript">
+    // A null signifies separate line segments
+    var plot = $.plot($("#placeholder"), [[], []]);
+    // Fetch some JSON stuff:
+    $.getJSON("http://localhost:5000/gimme.json", function(data) {
+        console.log(data.results);
+        plot.setData([data.results]);
+        plot.setupGrid();
+        plot.draw();
+    });
+</script>
