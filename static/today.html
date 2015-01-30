@@ -46,8 +46,8 @@ Wind Direction (°)</span>-->
 <script language="javascript" type="text/javascript" src="flot/jquery.min.js"></script>
 <script language="javascript" type="text/javascript" src="flot/jquery.flot.min.js"></script>
 <script language="javascript" type="text/javascript" src="flot/jquery.flot.time.min.js"></script>
-<script language="javascript" type="text/javascript" src="micropolar/micropolar.min.js"></script>
-<script type='text/javascript' src="http://d3js.org/d3.v3.min.js"></script>
+<script language="javascript" type="text/javascript" src="micropolar.min.js"></script>
+<script type='text/javascript' src="d3.v3.min.js"></script>
 
 <!-- Temperature plot using JQuery JSON and Flot: -->
 <script type="text/javascript">
@@ -68,48 +68,32 @@ Wind Direction (°)</span>-->
         xaxis: {mode: "time"}});
 
 // Now fetch in all of the data:
-    $.getJSON("/daily_temperature.json", function(data) {
-        temperature_plot.setData([data.results]);
+    $.getJSON("/daily.json", function(data) {
+        temperature_plot.setData([data.temp]);
         temperature_plot.setupGrid();
         temperature_plot.draw();
-    });
-    $.getJSON("/daily_dewpoint.json", function(data) {
-        dewpoint_plot.setData([data.results]);
+        dewpoint_plot.setData([data.dewpt]);
         dewpoint_plot.setupGrid();
         dewpoint_plot.draw();
-    });
-    $.getJSON("/daily_pressure.json", function(data) {
-        pressure_plot.setData([data.results]);
+        pressure_plot.setData([data.pressure]);
         pressure_plot.setupGrid();
         pressure_plot.draw();
-    });
-    $.getJSON("/daily_humidity.json", function(data) {
-        humidity_plot.setData([data.results]);
+        humidity_plot.setData([data.hum]);
         humidity_plot.setupGrid();
         humidity_plot.draw();
-    });
-    $.getJSON("/daily_rainfall.json", function(data) {
-        rainfall_plot.setData([data.results]);
+        rainfall_plot.setData([data.rainfall]);
         rainfall_plot.setupGrid();
         rainfall_plot.draw();
-    });
-    $.getJSON("/daily_sunshine.json", function(data) {
-        sunshine_plot.setData([data.results]);
+        sunshine_plot.setData([data.sunhours]);
         sunshine_plot.setupGrid();
         sunshine_plot.draw();
-    });
-    $.getJSON("/daily_windspeed.json", function(data) {
-        windspeed_plot.setData(data.results); // Multiple series this time
+        windspeed_plot.setData([data.avwindspd, data.maxwindspd]);
         windspeed_plot.setupGrid();
         windspeed_plot.draw();
-    });
-</script>
 
-<!-- Wind direction plot using JQuery JSON and MicroPolar -->
-<script type="text/javascript">
-    $.getJSON("/daily_winddir.json", function(data) {
-        ts = data.ts // Thetas
-        rs = data.rs // Radiuses
+        // Finally, MicroPolar:
+        ts = data.winddir.ts // Thetas
+        rs = data.winddir.rs // Radiuses
         config = {
             "data": [{
                 "t": ts,

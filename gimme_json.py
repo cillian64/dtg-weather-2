@@ -1,94 +1,111 @@
 #!/usr/bin/python3
 
+import flask
 from flask import Flask
 from flask import jsonify
 import json
 import numpy as np
 import os
 import psycopg2
+from datetime import datetime
+from datetime import timedelta
 app = Flask(__name__)
 
 debug = True
 
 CONN_STR = "host=/tmp"
 conn = psycopg2.connect(CONN_STR)
+conn.autocommit = True
 cur = conn.cursor()
 
+RECORD_LIMIT = 10000
 
-def get_daily_cols(cursor, cols, table="tblWeatherHistoric"):
+
+def get_data(cursor, fields=[], datefrom=None, dateto=None,
+             instantaneous=False):
     """
-    Pass me a column or comma-separated list of columns, and I'll execute the
-    appropriate query to fetch appropriate data with corrected javascript-epoch
-    timestamp!  By default I use tblweatherhistoric -- if you want
-    instantaneous data, pass a non-default table.
-    I return the same cursor you passed.
+    Pass me a list of field names and a date range, and I'll fetch some data.
+    I'll also include the timestamp, converted to javascript epoch format.  If
+    you want data from the instantaneous table, pass instantaneous=True.  I'll
+    execute the query on the cursor you passed, then return the same cursor.
+    datefrom and dateto should both be python datetime objects, if passed.
     """
-    # Unfortunately psycopg2's parameterisation doesn't work for table name or
-    # field names, so we have to do this with string formatting.  THIS MEANS
-    # COLS AND TABLE CANNOT BE USER-FACING VARIABLES!
-    cur.execute("""SELECT 1000*extract(epoch from timestamp),{}
-                   FROM {}
-                   WHERE timestamp > (now() - INTERVAL '1 day');""".format(
-                   cols, table))
+    if instantaneous:
+        table = "tblWeatherInstantaneous"
+    else:
+        table = "tblWeatherHistoric"
+
+    query = "SELECT 1000*extract(epoch from timestamp)"  # js epoch format
+    query = ",".join([query] + fields)  # Append any supplied fields to get.
+    query += " FROM " + table
+
+    if not datefrom: # Default datefrom is 24 hours ago
+        datefrom = datetime.now() - timedelta(days=1)
+    if not dateto: # Default dateto is now
+        dateto = datetime.now()
+    query += " WHERE timestamp > %s and timestamp < %s LIMIT %s;"
+    cursor.execute(query, (datefrom, dateto, RECORD_LIMIT))
 
 
-@app.route("/daily_temperature.json")
-def daily_temperature():
-    get_daily_cols(cur, "avtemp")
-    results = [(x, 0.1*y) for (x,y) in cur.fetchall()]
-    return jsonify({'results': results})
+@app.route("/daily.json")
+def daily_everything():
+    """
+    All sensor readings for the past 24 hours
+    """
+    return get_everything(None, None)  # Default period is past 24 hrs.
 
 
-@app.route("/daily_dewpoint.json")
-def daily_dewpoint():
-    get_daily_cols(cur, "avdewpt")
-    return jsonify({'results': cur.fetchall()})
+def get_everything(datefrom, dateto):
+    """
+    All sensor readings for the defined period as a big JSON gob.
+    """
+    get_data(cur, ["avtemp", "avdewpt", "avwinddir", "instrainfall", "avhum",
+                   "instsunhours", "avwindspd", "maxwindspd", "avpressure"],
+                  datefrom, dateto)
+    # Re-zip from record-format to a set of lists:
+    (t, temp, dewpt, winddir, rainfall, hum, sunhours, avwindspd, maxwindspd,
+        pressure) = zip(*cur.fetchall())
+
+    # Do necessary format conversions:
+    temp = [tempconv(x) for x in temp]
+    dewpt = [tempconv(x) for x in dewpt] # Just a temperature in the db
+    rainfall = [rainfallconv(x) for x in rainfall]
+    avwindspd = [windconv(x) for x in avwindspd]
+    maxwindspd = [windconv(x) for x in maxwindspd]
+
+    # MicroPolar isn't so keen on proper time series plotting, so we have to
+    # manually make time labels:
+    twinddir = [(x - min(t))/3600000.0 for x in t]
+
+    # JSONify a big dictionary: (we can pick it apart later in js)
+    # MicroPolar doesn't like its datapoints zipped :-(
+    results = {"temp":          list(zip(t, temp)),
+               "dewpt":         list(zip(t, dewpt)),
+               "winddir":       {"rs": twinddir, "ts": winddir},
+               "rainfall":      list(zip(t, rainfall)),
+               "hum":           list(zip(t, hum)),
+               "sunhours":      list(zip(t, sunhours)),
+               "avwindspd":     list(zip(t, avwindspd)),
+               "maxwindspd":    list(zip(t, maxwindspd)),
+               "pressure":      list(zip(t, pressure))}
+    return jsonify(results)
 
 
-@app.route("/daily_winddir.json")
-def daily_winddir(): # rs=radius=time, ts=theta=direction
-    get_daily_cols(cur, "avwinddir")
-    rs, ts = zip(*cur.fetchall())
-    # MicroPolar doesn't handle javascript times properly, so we'll convert
-    # js timestamps to sensible numbers:
-    rs = [(r - min(rs))/3600000.0 for r in rs]
-    return jsonify({'rs': rs, 'ts': ts})
+def tempconv(raw):
+    return 0.1*raw
 
 
-@app.route("/daily_rainfall.json")
-def daily_rainfall():
-    get_daily_cols(cur, "instrainfall")
-    results = [(x, 0.001*y) for (x,y) in cur.fetchall()]
-    return jsonify({'results': results})
+def rainfallconv(raw):
+    return 0.001*raw
 
 
-@app.route("/daily_humidity.json")
-def daily_humidity():
-    get_daily_cols(cur, "avhum")
-    return jsonify({'results': cur.fetchall()})
+def windconv(raw):
+    return 0.1*raw
 
 
-@app.route("/daily_sunshine.json")
-def daily_sunshine():
-    get_daily_cols(cur, "instsunhours")
-    return jsonify({'results': cur.fetchall()})
-
-
-@app.route("/daily_windspeed.json")
-def daily_windspeed():
-    get_daily_cols(cur, "avwindspd, maxwindspd")
-    ts, avs, maxs = zip(*cur.fetchall())
-    avs = [0.1*x for x in avs]
-    maxs = [0.1*x for x in maxs]
-    results = [list(zip(ts, avs)), list(zip(ts, maxs))]
-    return jsonify({'results': results})
-
-
-@app.route("/daily_pressure.json")
-def daily_pressure():
-    get_daily_cols(cur, "avpressure")
-    return jsonify({'results': cur.fetchall()})
-
+@app.route("/")
+def home_redir():
+    return flask.redirect('/static/today.html')
 
 if __name__ == "__main__":
     if debug:
