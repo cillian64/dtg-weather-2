@@ -16,8 +16,9 @@ def gimme_json():
     cur = conn.cursor()
     cur.execute("""SELECT 1000*extract(epoch from timestamp), insttemp
                  FROM tblweatherhistoric
-                 ORDER BY timestamp LIMIT 100;""")
-    return jsonify({'results': cur.fetchall()})
+                 WHERE timestamp > (now() - INTERVAL '1 day');""")
+    results = [(x, 0.1*y) for (x,y) in cur.fetchall()]
+    return jsonify({'results': results})
    
 @app.route("/wind.json")
 def wind_json():
