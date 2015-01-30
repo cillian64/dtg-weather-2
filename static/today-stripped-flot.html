@@ -51,12 +51,14 @@ Wind Direction (°)</span>-->
 
 <script language="javascript" type="text/javascript" src="flot/jquery.min.js"></script>
 <script language="javascript" type="text/javascript" src="flot/jquery.flot.min.js"></script>
+<script language="javascript" type="text/javascript" src="flot/jquery.flot.time.min.js"></script>
 <script language="javascript" type="text/javascript" src="micropolar/micropolar.min.js"></script>
 <script type='text/javascript' src="http://d3js.org/d3.v3.min.js"></script>
 
 <!-- Temperature plot using JQuery JSON and Flot: -->
 <script type="text/javascript">
-    var plot = $.plot($("#placeholder"), [[], []]);
+    var plot = $.plot($("#placeholder"), [[], []], {
+        xaxis: {mode: "time"}});
     $.getJSON("/gimme.json", function(data) {
         plot.setData([data.results]);
         plot.setupGrid();
