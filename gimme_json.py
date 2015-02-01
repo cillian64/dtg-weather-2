@@ -39,9 +39,9 @@ def get_data(cursor, fields=[], datefrom=None, dateto=None,
     query = ",".join([query] + fields)  # Append any supplied fields to get.
     query += " FROM " + table
 
-    if not datefrom: # Default datefrom is 24 hours ago
+    if not datefrom:  # Default datefrom is 24 hours ago
         datefrom = datetime.now() - timedelta(days=1)
-    if not dateto: # Default dateto is now
+    if not dateto:  # Default dateto is now
         dateto = datetime.now()
     query += " WHERE timestamp > %s and timestamp < %s LIMIT %s;"
     cursor.execute(query, (datefrom, dateto, RECORD_LIMIT))
@@ -61,14 +61,19 @@ def get_everything(datefrom, dateto):
     """
     get_data(cur, ["avtemp", "avdewpt", "avwinddir", "instrainfall", "avhum",
                    "instsunhours", "avwindspd", "maxwindspd", "avpressure"],
-                  datefrom, dateto)
-    # Re-zip from record-format to a set of lists:
-    (t, temp, dewpt, winddir, rainfall, hum, sunhours, avwindspd, maxwindspd,
-        pressure) = zip(*cur.fetchall())
+             datefrom, dateto)
+    results = cur.fetchall()
+    if results:  # Did we get any results?
+        # Re-zip from record-format to a set of lists:
+        (t, temp, dewpt, winddir, rainfall, hum, sunhours, avwindspd,
+            maxwindspd, pressure) = zip(*results)
+    else:  # If not, blank results lists
+        (t, temp, dewpt, winddir, rainfall, hum, sunhours, avwindspd,
+            maxwindspd, pressure) = ([],)*10
 
     # Do necessary format conversions:
     temp = [tempconv(x) for x in temp]
-    dewpt = [tempconv(x) for x in dewpt] # Just a temperature in the db
+    dewpt = [tempconv(x) for x in dewpt]  # Just a temperature in the db
     rainfall = [rainfallconv(x) for x in rainfall]
     avwindspd = [windconv(x) for x in avwindspd]
     maxwindspd = [windconv(x) for x in maxwindspd]
