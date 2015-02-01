@@ -3,9 +3,6 @@
 import flask
 from flask import Flask
 from flask import jsonify
-import json
-import numpy as np
-import os
 import psycopg2
 from datetime import datetime
 from datetime import timedelta
@@ -15,7 +12,7 @@ debug = True
 
 CONN_STR = "host=/tmp"
 conn = psycopg2.connect(CONN_STR)
-conn.autocommit = True
+conn.autocommit = True  # So we don't leave hanging transactions.
 cur = conn.cursor()
 
 RECORD_LIMIT = 10000
