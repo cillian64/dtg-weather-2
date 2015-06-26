@@ -25,6 +25,7 @@ def hello():
     temperature = cur.fetchall()[0][0] / 10.0
     string = "<b>Hello, world!</b> "
     string += "The current temperature is {} celsius.".format(temperature)
+    string += "<br /><i>Development website</i>"
     return string
 
 if __name__ == "__main__":
