@@ -18,7 +18,7 @@ def all_sensors(db, datefrom, dateto, inst):
         results[sensor] = get_sensor(db, sensor, datefrom, dateto, inst)
     return results
 
-def get_sensor(db, sensor, datefrom, dateto, inst)
+def get_sensor(db, sensor, datefrom, dateto, inst):
     """
     Return a result-set for the given sensor for a date range.
     db is a psycopg2 database connection object, datefrom and
