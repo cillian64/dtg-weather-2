@@ -15,7 +15,7 @@ def teardown_request(exception):
 
 
 @application.route('/weather_app/all_sensors_instant', methods=['GET'])
-def all_sensors():
+def all_sensors_instant():
     datefrom = request.args.get('datefrom')
     dateto = request.args.get('dateto')
     results = get_data.all_sensors(g.db, datefrom, dateto, inst=True)
@@ -23,7 +23,7 @@ def all_sensors():
 
 
 @application.route('/weather_app/all_sensors_historic', methods=['GET'])
-def all_sensors():
+def all_sensors_historic():
     datefrom = request.args.get('datefrom')
     dateto = request.args.get('dateto')
     results = get_data.all_sensors(g.db, datefrom, dateto, inst=False)
