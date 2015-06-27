@@ -1,14 +1,9 @@
 #!/usr/bin/python3
 
-import flask
-from flask import Flask
-from flask import jsonify
+import json
 import psycopg2
 from datetime import datetime
 from datetime import timedelta
-app = Flask(__name__)
-
-debug = True
 
 CONN_STR = "host=/tmp"
 conn = psycopg2.connect(CONN_STR)
@@ -37,25 +32,18 @@ def get_data(cursor, fields=[], datefrom=None, dateto=None,
     query += " FROM " + table
 
     if not datefrom:  # Default datefrom is 24 hours ago
-        datefrom = datetime.now() - timedelta(days=1)
+        datefrom = datetime.now() - timedelta(days=7)
     if not dateto:  # Default dateto is now
-        dateto = datetime.now()
-    query += " WHERE timestamp > %s and timestamp < %s LIMIT %s;"
+        dateto = datetime.now() - timedelta(days=6)
+    query += " WHERE timestamp > %s AND timestamp < %s LIMIT %s;"
     cursor.execute(query, (datefrom, dateto, RECORD_LIMIT))
 
 
-@app.route("/daily.json")
-def daily_everything():
-    """
-    All sensor readings for the past 24 hours
-    """
-    return get_everything(None, None)  # Default period is past 24 hrs.
-
-
-def get_everything(datefrom, dateto):
+def get_everything(datefrom=None, dateto=None):
     """
     All sensor readings for the defined period as a big JSON gob.
     """
+    
     get_data(cur, ["avtemp", "avdewpt", "avwinddir", "instrainfall", "avhum",
                    "instsunhours", "avwindspd", "maxwindspd", "avpressure"],
              datefrom, dateto)
@@ -90,7 +78,7 @@ def get_everything(datefrom, dateto):
                "avwindspd":     list(zip(t, avwindspd)),
                "maxwindspd":    list(zip(t, maxwindspd)),
                "pressure":      list(zip(t, pressure))}
-    return jsonify(results)
+    return json.dumps(results)
 
 
 def tempconv(raw):
@@ -105,13 +93,4 @@ def windconv(raw):
     return 0.1*raw
 
 
-@app.route("/")
-def home_redir():
-    return flask.redirect('/static/today.html')
 
-if __name__ == "__main__":
-    if debug:
-        print("******* DANGER ***********")
-        print("DANGER! Running in debug mode, this is UNSAFE in production")
-        print("******* DANGER ***********")
-    app.run(debug=debug)
