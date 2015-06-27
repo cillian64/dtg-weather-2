@@ -1,6 +1,8 @@
 import get_data
+import psycopg2 as pg
 from flask import Flask, g, request, json
 application = Flask(__name__)
+DB_STR = "dbname=weather user=weather_ro host=localhost"
 
 @application.before_request
 def before_request():
