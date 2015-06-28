@@ -16,7 +16,7 @@ def teardown_request(exception):
         db.close()
 
 
-@application.route('/weather_app/all_sensors_instant', methods=['GET'])
+@application.route('/weather_api/all_sensors_instant', methods=['GET'])
 def all_sensors_instant():
     datefrom = request.args.get('datefrom')
     dateto = request.args.get('dateto')
@@ -24,7 +24,7 @@ def all_sensors_instant():
     return json.jsonify(results)
 
 
-@application.route('/weather_app/all_sensors_historic', methods=['GET'])
+@application.route('/weather_api/all_sensors_historic', methods=['GET'])
 def all_sensors_historic():
     datefrom = request.args.get('datefrom')
     dateto = request.args.get('dateto')
