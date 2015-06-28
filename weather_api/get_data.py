@@ -1,4 +1,6 @@
 import psycopg2 as pg
+import pytz
+from datetime import datetime
 
 inst_sensors = {"temperature": "insttemp",
                 "humidity": "insthum",
@@ -40,8 +42,9 @@ def get_sensor(db, sensor, datefrom, dateto, inst):
     If inst is true, use few-secondly readings, if False, half-hourly
     Result looks like [(t0, val0), (t1, val1), (t2, val2), ...]
     """
-    if datefrom is None or dateto is None:
-        raise ValueError("datefrom and dateto must both be specified")
+    if ((not isinstance(datefrom, datetime)) or
+        (not isinstance(dateto, datetime))):
+        raise ValueError("datefrom and dateto must both be datetime objects")
 
     if inst:
         sensors = inst_sensors
@@ -54,14 +57,18 @@ def get_sensor(db, sensor, datefrom, dateto, inst):
         raise ValueError("Invalid sensor type '{}'".format(sensor))
 
     cur = db.cursor()
+    # Interpret the tz-naive records as being in UTC:
+    cur.execute("SET SESSION TIME ZONE 'UTC';")
     RECORD_LIMIT = 50000
     query = "SELECT timestamp, {} ".format(sensors[sensor])
     query += "FROM {} ".format(table)
-    query += "WHERE timestamp BETWEEN %s and %s LIMIT %s"
+    query += "WHERE timestamp BETWEEN %s and %s LIMIT %s;"
     cur.execute(query, (datefrom, dateto, RECORD_LIMIT))
     
     converter = convert(sensors[sensor])
-    return [(t, converter(data)) for (t, data) in cur]
+    tz = pytz.timezone('UTC')  # Database times are all UTC
+    # Force the outcoming data to be tz-aware and in UTC.
+    return [(tz.localize(t).isoformat(), converter(data)) for (t, data) in cur]
 
 
 def convert(sensorfield):
