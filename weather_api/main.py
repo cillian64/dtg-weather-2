@@ -12,30 +12,30 @@ DB_STR = "dbname=weather user=weather_ro host=localhost"
 def before_request():
     g.db = pg.connect(DB_STR)
 
-
 @application.teardown_request
 def teardown_request(exception):
     db = getattr(g, 'db', None)
     if db is not None:
         db.close()
 
-
 @application.route('/weather_api/daily_graph.png', methods=['GET'])
 def daily_graph():
     return graphs.daily_graph(request.args.get('date'),
                               request.args.get('sensor'))
-
 
 @application.route('/weather_api/all_sensors_instant.json', methods=['GET'])
 def all_sensors_instant():
     return tabulate.all_sensors_instant(request.args.get('datefrom'),
                                         request.args.get('dateto'))
 
-
 @application.route('/weather_api/all_sensors_historic.json', methods=['GET'])
 def all_sensors_historic():
     return tabulate.all_sensors_historic(request.args.get('datefrom'),
                                          request.args.get('dateto'))
+
+@application.route('/weather_api/daily-text.txt')
+def daily_text():
+    return tabulate.daily_text(request.args.get('date'))
 
 @application.route('/weather_api/current_obs.txt')
 def current_obs():
