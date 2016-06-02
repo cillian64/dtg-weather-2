@@ -33,6 +33,7 @@ def daily_graph(date, sensor):
         axis.set_ylim((0, 1))
     elif sensor == 'windspeed':
         axis.set_ylim((0, 70))
+    axis.set_xlim((datefrom, dateto))
     axis.xaxis.set_major_locator(HourLocator(arange(0, 25, 6)))
     axis.xaxis.set_major_formatter(DateFormatter('%H:%M'))
     axis.plot(xs, ys)
