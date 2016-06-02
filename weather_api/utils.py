@@ -22,7 +22,11 @@ def input_date(string):
     Handles an ISO-format date string, format like YY-MM-DD
     Returns a timezone-aware UTC datetime object of midnight on that day.
     """
-    conv = datetime.strptime(string, "%Y-%m-%d")
+    if string is None or string.lower() == "today":
+        conv = datetime.now()
+        conv = conv.replace(hour=0, minute=0, second=0, microsecond=0)
+    else:
+        conv = datetime.strptime(string, "%Y-%m-%d")
 
     tz = pytz.timezone('UTC')
     return tz.localize(conv)
