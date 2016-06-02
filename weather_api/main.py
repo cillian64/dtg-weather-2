@@ -2,6 +2,7 @@ import psycopg2 as pg
 
 import graphs
 import tabulate
+import currentobs
 
 from flask import Flask, g, request, json, make_response
 application = Flask(__name__)
@@ -36,6 +37,9 @@ def all_sensors_historic():
     return tabulate.all_sensors_historic(request.args.get('datefrom'),
                                          request.args.get('dateto'))
 
+@application.route('/weather_api/current_obs.txt')
+def current_obs():
+    return currentobs.current_obs()
 
 if __name__ == "__main__":
     application.run(host="127.0.0.1")
