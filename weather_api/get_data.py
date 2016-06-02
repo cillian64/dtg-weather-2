@@ -15,6 +15,7 @@ hist_sensors = {"temperature": "avtemp",
                 "dewpoint": "avdewpt",
                 "pressure": "avpressure",
                 "windspeed": "avwindspd",
+                "maxwindspeed": "maxwindspd",
                 "winddirection": "avwinddir",
                 "sunshine": "instsunhours",
                 "rainfall": "instrainfall"}
@@ -78,7 +79,7 @@ def convert(sensorfield):
     data_api = convert("temp")(data_sql)
     """
     if sensorfield in ["insttemp", "avtemp", "instdewpt", "avdewpt",
-                       "instwindspd", "avwindspd"]:
+                       "instwindspd", "avwindspd", "maxwindspd"]:
         return lambda data: 0.1 * data
     elif sensorfield == "instrainfall":
         return lambda data: 0.001 * data
