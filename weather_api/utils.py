@@ -25,6 +25,10 @@ def input_date(string):
     if string is None or string.lower() == "today":
         conv = datetime.now()
         conv = conv.replace(hour=0, minute=0, second=0, microsecond=0)
+    elif string.lower() == "yesterday":
+        conv = datetime.now()
+        conv = conv.replace(hour=0, minute=0, second=0, microsecond=0)
+        conv = conv - timedelta(hours=24)
     else:
         conv = datetime.strptime(string, "%Y-%m-%d")
 
