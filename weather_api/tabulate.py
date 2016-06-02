@@ -1,5 +1,6 @@
 import get_data
-from utils import input_datetime, input_date
+from utils import input_datetime, input_date, winddir
+from datetime import datetime, timedelta
 
 from flask import Flask, g, request, json, make_response
 

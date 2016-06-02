@@ -26,3 +26,22 @@ def input_date(string):
 
     tz = pytz.timezone('UTC')
     return tz.localize(conv)
+
+def winddir(bearing):
+    """
+    Converts a bearing to a character format, e.g. 0 -> 'N', 45 -> 'NE'
+    """
+    if bearing < 0 or bearing > 360:
+        raise ValueError("Invalid bearing")
+
+    text = ""
+    if bearing >= 292.5 or bearing < 67.5:
+        text += "N"
+    elif bearing >= 112.5 and bearing < 245.5:
+        text += "S"
+    if bearing >= 22.5 and bearing < 157.5:
+        text += "E"
+    elif bearing >= 202.5 and bearing < 337.5:
+        text += "W"
+    return text
+
