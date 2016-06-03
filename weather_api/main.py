@@ -3,6 +3,8 @@ import psycopg2 as pg
 import graphs
 import tabulate
 import currentobs
+import dials
+
 from utils import input_date
 from datetime import datetime, timedelta
 
@@ -20,6 +22,11 @@ def teardown_request(exception):
     db = getattr(g, 'db', None)
     if db is not None:
         db.close()
+
+####### Dials stuff
+@application.route('/weather_api/current-dials.png')
+def current_dials():
+    return dials.current_dials()
 
 ######## Graphs
 @application.route('/weather_api/daily_graph.png', methods=['GET'])
