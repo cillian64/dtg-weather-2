@@ -71,8 +71,7 @@ def current_obs():
     # Time comes out of DB as naive UTC time. Localise to UTC:
     dbnow = pytz.utc.localize(row[0])
     # Find out system local tz and convert dbtime from utc to local time:
-    local_tz = get_localzone()
-    local_now = dbnow.astimezone(local_tz)
+    local_now = dbnow.astimezone(get_localzone())
     # Convert to legacy format:
     date = local_now.strftime("%d %b %y")
     time = local_now.strftime("%I:%M %p")
