@@ -12,6 +12,26 @@ from flask import Flask, g, request, json, make_response, render_template
 application = Flask(__name__)
 DB_STR = "dbname=weather user=weather_ro host=localhost"
 
+####### Webpages
+@application.route('/index.html')
+@application.route('/index.htm')
+@application.route('/')
+def index():
+    return render_template('index.html')
+
+@application.route('/weather_api/daily-graph.html', methods=['GET'])
+def daily_graph_page():
+    date = input_date(request.args.get('date'))
+    yesterday = date - timedelta(hours=24)
+    tomorrow = date + timedelta(hours=24)
+    date = date.strftime('%Y-%m-%d')
+    yesterday = yesterday.strftime('%Y-%m-%d')
+    tomorrow = tomorrow.strftime('%Y-%m-%d')
+    
+    return render_template('daily-graph.html', date=date, yesterday=yesterday,
+                           tomorrow=tomorrow)
+
+
 ####### Database boilerplate
 @application.before_request
 def before_request():
@@ -34,18 +54,6 @@ def daily_graph():
     return graphs.daily_graph(request.args.get('date'),
                               request.args.get('sensor'))
 
-@application.route('/weather_api/daily-graph.html', methods=['GET'])
-def daily_graph_page():
-    date = input_date(request.args.get('date'))
-    yesterday = date - timedelta(hours=24)
-    tomorrow = date + timedelta(hours=24)
-
-    date = date.strftime('%Y-%m-%d')
-    yesterday = yesterday.strftime('%Y-%m-%d')
-    tomorrow = tomorrow.strftime('%Y-%m-%d')
-    
-    return render_template('daily-graph.html', date=date, yesterday=yesterday,
-                           tomorrow=tomorrow)
 
 ######### JSON
 @application.route('/weather_api/all_sensors_instant.json', methods=['GET'])

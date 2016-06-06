@@ -1,0 +1,87 @@
+<style type="text/css">
+    body.secondary div#content-primary p { text-align: left; }
+    div#content-primary li { text-align: left; }
+    #weather-dials { width: 473px; float: right; padding: 5px 25px 25px 25px; background-color: white; }
+    @media (max-width: 950px) {
+	  #weather-dials { float: none; padding: 5px; margin: 0 auto 2em auto; }
+    }
+</style>
+
+<div id="weather-dials">
+  <div style="position: relative; height: 540px;">
+    <div style="position:absolute; clip:rect(34px 487px 567px 14px); top: -34px; left: -14px; margin: 0 auto;">
+      <img src="weather_api/current-dials.png" alt="Current Weather Snapshot" width="498" height="577" />
+    </div>
+  </div>
+  <p style="font-size: 0.7em">
+     <i><b>Note</b>: if the wind speed is zero, the wind direction (if shown)
+	  is that when the wind was last blowing.</i>
+  </p>
+<pre style='white-space: pre-wrap; margin: 0;'>
+<!--TPL_WEATHER_TXT-->
+</pre>
+</div>
+
+<div class='subtitle'><div class='icon weather'>Cambridge Weather<!--TPL_SUMMARY--></div></div>
+
+<!-- 
+     Uncomment the div block below to show a warning/info box. Comment to hide. 
+     Change from class="help warn" to class="help info" for a white info icon 
+     and normal text rather than a red/white alert icon and bold text. 
+	 
+            Run "make frontpage" to see the changes quicker.
+-->
+<!--<div class="help warn"><ul>
+  <li>Example warning.</li>
+</ul></div>-->
+<!--div class="help info"><ul>
+<li>Example info</li>
+</ul></div-->
+
+<h2>
+<div>
+  Graphs:
+  <a class="iconed" href="weather_api/daily-graph.html?today" title="Today's weather so far"><span>Today</span><img src="images/icon-chart1.png" alt="Today" style="vertical-align: text-bottom;" /></a>
+  &nbsp;
+  <a class="iconed" href="weather_api/daily-graph.html?yesterday" title="Yesterday's weather"><span>Yesterday</span><img src="images/icon-chart2.png" alt="Yesterday" style="vertical-align: text-bottom" /></a>
+</div>
+<div style="margin-top:9px">
+  Maps:
+  <a class="iconed" href="lightning.html" title="Lightning map"><span>Lightning</span><img src="images/map-lightning.png" alt="Lighting map" style="vertical-align: text-bottom" /></a>
+</div>
+</h2>  
+
+<p>The dials show the current Cambridge weather readings, as taken on the roof of our 
+building by <a href="implementation.html">the DTG Weather Station</a>. Also available as:</p>
+<div class="clearfix">
+  <ul class="plain" style="float:left">
+    <li><a href="current-obs.txt">Plain text</a></li>
+    <li><a href="rss.xml">RSS feed</a></li>
+  </ul>
+</div>
+
+<h2 style="clear:left">Archive data since 1995</h2>
+<ul class="plain">
+  <li>Daily: <a href="index-daily-text.html">text</a> or <a href="index-daily-graph.html">graphs</a></li>
+  <li>Monthly: <a href="index-period-text.html">text</a> or <a href="index-period-graph.html">graphs</a></li>
+  <li>All raw data: <a href="weather.tar.gz">daily text files</a> (tar.gz archive)</li>
+  <li>All raw data: <a href="weather-raw.csv">single CSV file</a> (<a href="weather-raw-format.txt">format</a>)</li>
+</ul>
+
+<h2>Feedback</h2>
+<p>Please <a href="/research/dtg/www/feedback">drop us a line</a> if you discover any inaccuracies
+ in the reported weather data, or if you have general feedback, comments or questions.</p>
+
+<h2>Other info</h2>
+<ul class="plain">
+  <li><a href="inaccuracies.html">Inaccuracies</a> in the weather data.</li>
+  <li><a href="implementation.html">Implementation</a> of the service.</li>
+  <li><a href="map.html">Location</a> of the sensors.</li>
+  <li><a href="https://lists.cam.ac.uk/mailman/listinfo/cl-weather">Mailing list</a> for
+   announcements regarding service changes or recording errors.</li>
+</ul>
+
+<p>If you wonder what &quot;Dew Point&quot; means, see
+ <a class="external" href="dewpoint.html">here</a> for a simple explanation,
+ or <a class="external" href="http://www.faqs.org/faqs/meteorology/temp-dewpoint/">here</a>
+ for more than you want to know.</p>
