@@ -6,5 +6,5 @@ cd venv/lib/python3/site-packages
 ln -s /usr/lib/python3/dist-packages/numpy
 ln -s /usr/lib/python3/dist-packages/numpy-*.egg-info .
 ln -s /usr/lib/python3/dist-packages/matplotlib .
-pip install gunicorn flask psycopg2 pytz six dateutils pyparsing
-
+pip install gunicorn flask psycopg2 pytz six dateutils pyparsing tzlocal \
+    Pillow

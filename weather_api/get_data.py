@@ -15,26 +15,30 @@ hist_sensors = {"temperature": "avtemp",
                 "dewpoint": "avdewpt",
                 "pressure": "avpressure",
                 "windspeed": "avwindspd",
+                "maxwindspeed": "maxwindspd",
                 "winddirection": "avwinddir",
                 "sunshine": "instsunhours",
                 "rainfall": "instrainfall"}
 
-def all_sensors(db, datefrom, dateto, inst):
+def all_sensors(db, datefrom, dateto, inst, timeobj=False):
     """
     Return a dictionary of result-sets for all sensors for the
     date-range specified.  db is a psycopg2 connection object,
     datefrom and dateto are datetime objects.
     If inst is true, use few-secondly readings, if False, half-hourly
+    If timeobj is True, timestamps are returned as tz-aware datetime objects
+    if false, they are converted to ISO-format strings.
     Result looks like {'temp': tempdata, 'dewpt': dewptdata, ...}
     """
     sensors = inst_sensors if inst else hist_sensors
 
     results = dict()
     for sensor in sensors:
-        results[sensor] = get_sensor(db, sensor, datefrom, dateto, inst)
+        results[sensor] = get_sensor(db, sensor, datefrom, dateto, inst,
+                                     timeobj)
     return results
 
-def get_sensor(db, sensor, datefrom, dateto, inst):
+def get_sensor(db, sensor, datefrom, dateto, inst, timeobj=False):
     """
     Return a result-set for the given sensor for a date range.
     db is a psycopg2 database connection object, datefrom and
@@ -64,11 +68,17 @@ def get_sensor(db, sensor, datefrom, dateto, inst):
     query += "FROM {} ".format(table)
     query += "WHERE timestamp BETWEEN %s and %s LIMIT %s;"
     cur.execute(query, (datefrom, dateto, RECORD_LIMIT))
+    datas = cur.fetchall()
     
     converter = convert(sensors[sensor])
-    tz = pytz.timezone('UTC')  # Database times are all UTC
-    # Force the outcoming data to be tz-aware and in UTC.
-    return [(tz.localize(t).isoformat(), converter(data)) for (t, data) in cur]
+    # Convert all the data:
+    datas = [(t, converter(d)) for (t, d) in datas]
+    # Localize all the timestamps:
+    datas = [(pytz.utc.localize(t), d) for (t, d) in datas]
+    # If necessary convert timestamps to ISO text string:
+    if not timeobj:
+        datas = [(t.isoformat(), d) for (t, d) in datas]
+    return datas
 
 
 def convert(sensorfield):
@@ -78,7 +88,7 @@ def convert(sensorfield):
     data_api = convert("temp")(data_sql)
     """
     if sensorfield in ["insttemp", "avtemp", "instdewpt", "avdewpt",
-                       "instwindspd", "avwindspd"]:
+                       "instwindspd", "avwindspd", "maxwindspd"]:
         return lambda data: 0.1 * data
     elif sensorfield == "instrainfall":
         return lambda data: 0.001 * data
