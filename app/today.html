@@ -1,0 +1,112 @@
+<html><head></head><body>
+<div id="content">
+<div id="sub-brand"><!--TPL_USERBRAND--><a href="https://www.cl.cam.ac.uk/research/dtg/www/" title="Digital Technology Group - Home"></a></div>
+<div id="content-primary">
+
+<span style="display: inline-block; text-align: center; height: 200px; width: 300px">
+<span id=temperature_placeholder style="display: inline-block; height: 180px; width: 300px"></span>
+<br>Temperature (&deg;C)</span>
+
+<span style="display: inline-block; text-align: center; height: 200px; width: 300px">
+<span id=dewpoint_placeholder style="display: inline-block; height: 180px; width: 300px"></span>
+<br>Dew Point (&deg;C)</span>
+
+<span style="display: inline-block; text-align: center; height: 200px; width: 300px">
+<span id=pressure_placeholder style="display: inline-block; height: 180px; width: 300px"></span>
+<br>Pressure QNH (mbar)</span>
+
+<span style="display: inline-block; text-align: center; height: 200px; width: 300px">
+<span id=humidity_placeholder style="display: inline-block; height: 180px; width: 300px"></span>
+<br>Humidity (%)</span>
+
+<span style="display: inline-block; text-align: center; height: 200px; width: 300px">
+<span id=rainfall_placeholder style="display: inline-block; height: 180px; width: 300px"></span>
+<br>Rainfall (mm/hr)</span>
+
+<span style="display: inline-block; text-align: center; height: 200px; width: 300px">
+<span id=sunshine_placeholder style="display: inline-block; height: 180px; width: 300px"></span>
+<br>Sunshine (%)</span>
+
+<span style="display: inline-block; text-align: center; height: 200px; width: 300px">
+<span id=windspeed_placeholder style="display: inline-block; height: 180px; width: 300px"></span>
+<br>Wind Speed (<span style="color:red">max</span> &amp; <span style="color:orange">
+mean</span> knots)</span>
+
+<!--<span style="display: inline-block; text-align: center; margin: 0 0 1.75em 0;">
+<img alt="winddir" src="./today_files/2015_01_29-winddir.png">
+<br>
+Wind Direction (°)</span>-->
+
+<span style="display: inline-block; text-align: center; height: 220px; width: 300px">
+<span id=winddir_placeholder style="display: inline-block; height: 200px; width: 300px"></span>
+<br>Wind Direction (&deg;)</span>
+
+		</div> <!-- content-primary -->
+
+<script language="javascript" type="text/javascript" src="flot/jquery.min.js"></script>
+<script language="javascript" type="text/javascript" src="flot/jquery.flot.min.js"></script>
+<script language="javascript" type="text/javascript" src="flot/jquery.flot.time.min.js"></script>
+<script language="javascript" type="text/javascript" src="micropolar.min.js"></script>
+<script type='text/javascript' src="d3.v3.min.js"></script>
+
+<!-- Temperature plot using JQuery JSON and Flot: -->
+<script type="text/javascript">
+// First setup all the empty plots:
+    var temperature_plot = $.plot($("#temperature_placeholder"), [[], []], {
+        xaxis: {mode: "time"}});
+    var dewpoint_plot = $.plot($("#dewpoint_placeholder"), [[], []], {
+        xaxis: {mode: "time"}});
+    var pressure_plot = $.plot($("#pressure_placeholder"), [[], []], {
+        xaxis: {mode: "time"}});
+    var humidity_plot = $.plot($("#humidity_placeholder"), [[], []], {
+        xaxis: {mode: "time"}});
+    var rainfall_plot = $.plot($("#rainfall_placeholder"), [[], []], {
+        xaxis: {mode: "time"}});
+    var sunshine_plot = $.plot($("#sunshine_placeholder"), [[], []], {
+        xaxis: {mode: "time"}});
+    var windspeed_plot = $.plot($("#windspeed_placeholder"), [[], []], {
+        xaxis: {mode: "time"}});
+
+// Now fetch in all of the data:
+    $.getJSON("/weather_api/all_sensors_historic?datefrom=2015-06-27T00:00:00Z&dateto=2015-06-27T23:59:00Z", function(data) {
+        temperature_plot.setData([data.temperature]);
+        temperature_plot.setupGrid();
+        temperature_plot.draw();
+        dewpoint_plot.setData([data.dewpoint]);
+        dewpoint_plot.setupGrid();
+        dewpoint_plot.draw();
+        pressure_plot.setData([data.pressure]);
+        pressure_plot.setupGrid();
+        pressure_plot.draw();
+        humidity_plot.setData([data.humidity]);
+        humidity_plot.setupGrid();
+        humidity_plot.draw();
+        rainfall_plot.setData([data.rainfall]);
+        rainfall_plot.setupGrid();
+        rainfall_plot.draw();
+        sunshine_plot.setData([data.sunshine]);
+        sunshine_plot.setupGrid();
+        sunshine_plot.draw();
+        windspeed_plot.setData([data.windspeed]);
+        windspeed_plot.setupGrid();
+        windspeed_plot.draw();
+
+        // Finally, MicroPolar:
+//        ts = data.winddir.ts // Thetas
+//        rs = data.winddir.rs // Radiuses
+//        config = {
+//            "data": [{
+//                "t": ts,
+//                "r": rs,
+//                "geometry": "DotPlot"}],
+//            "layout": {
+//                "height": 200,
+//                "width": 300,
+//                "showLegend": false,
+//                "orientation": -90}};
+//        micropolar.Axis()
+//            .config(config)
+//            .render(d3.select("#winddir_placeholder"));
+    });
+</script>
+</body></html>
